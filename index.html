@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIA Language</title>
+  <style>
+    /* تنسيق الإشعار عند النسخ */
+    #copyNotification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+      font-size: 14px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2); /* تخفيف الخلفية */
+      z-index: -1;
+    }
+    h1 {
+      color: #fff;
+    }
+    /* تغليف النصوص في حاوية لتحديد موقع أيقونة النسخ */
+    .text-container {
+      position: relative;
+      display: inline-block;
+      width: 80%;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    /* تنسيق النص المترجم باللون الأبيض */
+    #outputText {
+      background: transparent;
+      padding: 10px;
+      min-height: 100px;
+      font-size: 16px;
+      word-wrap: break-word;
+      color: #fff;
+    }
+    /* تنسيق الأزرار الأخرى */
+    button {
+      margin: 5px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+      box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+                  inset -2px -2px 5px rgba(0, 0, 0, 0.8),
+                  3px 3px 5px rgba(0, 0, 0, 0.6);
+      color: #ffffff;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    button:hover {
+      background: linear-gradient(145deg, #2c2c2c, #3a3a3a);
+      box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.2),
+                  inset -2px -2px 5px rgba(0, 0, 0, 0.9),
+                  3px 3px 8px rgba(0, 0, 0, 0.8);
+    }
+    .translate-btn {
+      background: linear-gradient(145deg, #1e1e1e, #252525);
+    }
+    .play-btn {
+      background: linear-gradient(145deg, #400000, #700000);
+    }
+    /* تنسيق أيقونات النسخ */
+    .copy-icon {
+      position: absolute;
+      bottom: 5px;
+      cursor: pointer;
+      /* حجم الأيقونة يمكن تعديله حسب الرغبة */
+      width: 24px;
+      height: 24px;
+    }
+    /* للأيقونة داخل مربع النص (المُدخل) - لونها أسود */
+    .input-copy {
+      left: 5px;
+      fill: #000;
+    }
+    /* للأيقونة داخل مربع النص المترجم - لونها أبيض */
+    .output-copy {
+      right: 5px;
+      fill: #fff;
+    }
+    /* أيقونة النسخ عند التحويم */
+    .copy-icon:hover {
+      opacity: 0.8;
+    }
+    /* تنسيق أيقونة القائمة الخلفية */
+    .menu-icon {
+      font-size: 30px;
+      color: white;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 999;
+    }
+    .background-options {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      border-radius: 5px;
+      z-index: 998;
+    }
+    .background-options button {
+      display: block;
+      margin: 5px 0;
+      background-color: #3498db;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>CIA Language</h1>
+  
+  <!-- حاوية النص المكتوب -->
+  <div class="text-container input-container">
+    <textarea id="inputText" placeholder="أدخل النص هنا..."></textarea>
+    <!-- أيقونة النسخ للمربع الأبيض (يسار أسفل) -->
+    <svg class="copy-icon input-copy" onclick="copyInputText()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path fill="none" d="M0 0h24v24H0z" />
+      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 
+               1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 
+               16H8V7h11v14z"/>
+    </svg>
+  </div>
+
+  <!-- أزرار الترجمة والتشغيل -->
+  <button class="translate-btn" onclick="translateToUgaritic()">Translate to CIA Language</button>
+  <button class="translate-btn" onclick="translateToArabic()">Translate to Arabic</button>
+  <button class="play-btn" onclick="playAudio()">Play Audio</button>
+  
+  <!-- حاوية النص المترجم -->
+  <div class="text-container output-container" style="background: transparent;">
+    <p id="outputText"></p>
+    <!-- أيقونة النسخ للمربع المظلم (يمين أسفل) -->
+    <svg class="copy-icon output-copy" onclick="copyOutputText()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path fill="none" d="M0 0h24v24H0z" />
+      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 
+               1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 
+               16H8V7h11v14z"/>
+    </svg>
+  </div>
+
+  <!-- أيقونة القائمة -->
+  <div class="menu-icon" onclick="toggleBackgroundOptions()">&#9776;</div>
+
+  <!-- خيارات الخلفية -->
+  <div class="background-options" id="backgroundOptions">
+    <button onclick="changeBackground('white')">White Background</button>
+    <button onclick="changeBackground('black')">Black Background</button>
+    <button onclick="triggerFileInput()">Choose Background Image</button>
+    <input type="file" id="fileInput" style="display:none" accept="image/*" onchange="uploadImage(event)" />
+  </div>
+
+  <!-- عنصر الإشعار عند النسخ -->
+  <div id="copyNotification">text copied</div>
+
+  <script>
+    const arabicToUgariticMap = {
+      "ا": "𐎀", "ل": "𐎁", "ب": "𐎂", "ت": "𐎃", "خ": "𐎄",
+      "ي": "𐎅", "س": "𐎆", "ط": "𐎇", "و": "𐎈", "ظ": "𐎉",
+      "ش": "𐎊", "ص": "𐎋", "ض": "𐎌", "ق": "𐎍", "ف": "𐎎",
+      "غ": "𐎏", "ع": "𐎐", "ج": "𐎑", "ح": "𐎒", "ز": "𐎓",
+      "ه": "𐎔", "د": "𐎕", "ذ": "𐎖", "ث": "𐎗", "م": "𐎘",
+      "ن": "𐎙", "ك": "𐎚", "ر": "𐎛", "ة": "𐎜", "أ": "𐎝", "ى": "𐎟"
+    };
+
+    const ugariticToArabicMap = Object.fromEntries(
+      Object.entries(arabicToUgariticMap).map(([key, value]) => [value, key])
+    );
+
+    const ugariticToAkkadianPronunciation = {
+      "𐎀": "a", "𐎁": "b", "𐎂": "g", "𐎃": "d", "𐎄": "ḫ",
+      "𐎅": "h", "𐎆": "w", "𐎇": "z", "𐎈": "ḥ", "𐎉": "ṭ",
+      "𐎊": "y", "𐎋": "k", "𐎌": "š", "𐎍": "l", "𐎎": "m",
+      "𐎏": "n", "𐎐": "s", "𐎑": "ʕ", "𐎒": "p", "𐎓": "ṣ",
+      "𐎔": "q", "𐎕": "r", "𐎖": "ṯ", "𐎗": "ḏ", "𐎘": "ġ",
+      "𐎙": "t", "𐎚": "š", "𐎛": "ṯ", "𐎜": "θ", "𐎝": "ʔ", "𐎟": "iː"
+    };
+
+    function translateToUgaritic() {
+      const inputText = document.getElementById("inputText").value;
+      let outputText = "";
+      for (const char of inputText) {
+        outputText += arabicToUgariticMap[char] || char;
+      }
+      document.getElementById("outputText").innerText = outputText;
+    }
+
+    function translateToArabic() {
+      const inputText = document.getElementById("inputText").value;
+      let outputText = "";
+      for (const char of inputText) {
+        outputText += ugariticToArabicMap[char] || char;
+      }
+      document.getElementById("outputText").innerText = outputText;
+    }
+
+    function playAudio() {
+      const text = document.getElementById("outputText").innerText;
+      if (/^[\u0600-\u06FF\s]+$/.test(text)) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "ar";
+        window.speechSynthesis.speak(msg);
+        return;
+      }
+      let pronunciationText = "";
+      for (const char of text) {
+        pronunciationText += ugariticToAkkadianPronunciation[char] || char;
+      }
+      const msg = new SpeechSynthesisUtterance(pronunciationText);
+      msg.lang = "ar";
+      window.speechSynthesis.speak(msg);
+    }
+
+    function changeBackground(color) {
+      if (color === 'white') {
+        document.body.style.background = 'white';
+      } else if (color === 'black') {
+        document.body.style.background = 'black';
+      }
+    }
+
+    function toggleBackgroundOptions() {
+      const options = document.getElementById('backgroundOptions');
+      if (options.style.display === 'none' || options.style.display === '') {
+        options.style.display = 'block';
+      } else {
+        options.style.display = 'none';
+      }
+    }
+
+    function triggerFileInput() {
+      document.getElementById('fileInput').click();
+    }
+
+    function uploadImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function () {
+          document.body.style.background = `url(${reader.result}) no-repeat center center fixed`;
+          document.body.style.backgroundSize = 'cover';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // إظهار إشعار النسخ في أعلى اليمين لمدة 3 ثواني
+    function showNotification() {
+      const notification = document.getElementById("copyNotification");
+      notification.style.display = "block";
+      setTimeout(() => {
+        notification.style.display = "none";
+      }, 3000);
+    }
+
+    // وظيفة نسخ النص المكتوب (من المربع الأبيض)
+    function copyInputText() {
+      const inputText = document.getElementById("inputText").value;
+      navigator.clipboard.writeText(inputText).then(() => {
+        showNotification();
+      }).catch(err => {
+        console.error("خطأ أثناء النسخ:", err);
+      });
+    }
+
+    // وظيفة نسخ النص المترجم (من المربع المظلم)
+    function copyOutputText() {
+      const outputText = document.getElementById("outputText").innerText;
+      navigator.clipboard.writeText(outputText).then(() => {
+        showNotification();
+      }).catch(err => {
+        console.error("خطأ أثناء النسخ:", err);
+      });
+    }
+  </script>
+</body>
+</html>
